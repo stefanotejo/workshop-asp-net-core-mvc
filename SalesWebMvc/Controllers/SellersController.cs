@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,7 +50,7 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not provided"});
             }
 
             // As this id below is optional (nullable), id.Value must be used instead of just id
@@ -57,7 +58,7 @@ namespace SalesWebMvc.Controllers
 
             if (seller == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
 
             return View(seller);
@@ -77,7 +78,7 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not provided" });
             }
 
             // As this id below is optional (nullable), id.Value must be used instead of just id
@@ -85,7 +86,7 @@ namespace SalesWebMvc.Controllers
 
             if (seller == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
 
             return View(seller);
@@ -96,7 +97,7 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not provided" });
             }
 
             // As this id below is optional (nullable), id.Value must be used instead of just id
@@ -104,7 +105,7 @@ namespace SalesWebMvc.Controllers
 
             if (seller == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
 
             List<Department> departments = _departmentService.FindAll();
@@ -119,7 +120,7 @@ namespace SalesWebMvc.Controllers
         {
             if(id != seller.Id)
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { message = "Id mismatch" });
             }
 
             try
@@ -127,14 +128,21 @@ namespace SalesWebMvc.Controllers
                 _sellerService.Update(seller);
                 return RedirectToAction(nameof(Index));
             }
-            catch(NotFoundException)
+            catch(ApplicationException e)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = e.Message });
             }
-            catch (DbConcurrencyException)
+        }
+
+        // ERROR
+        public IActionResult Error(string message)
+        {
+            ErrorViewModel viewModel = new ErrorViewModel
             {
-                return BadRequest();
-            }
+                Message = message,
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier // Just accept this
+            };
+            return View(viewModel);
         }
     }
 }
