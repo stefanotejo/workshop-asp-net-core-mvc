@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SalesWebMvc.Services;
+using SalesWebMvc.Services.Exceptions;
 using SalesWebMvc.Models;
 using SalesWebMvc.Models.ViewModels;
 
@@ -46,7 +47,7 @@ namespace SalesWebMvc.Controllers
         // This takes us to the Delete view, so it is HttpGet, which is default
         public IActionResult Delete(int? id)
         {
-            if(id == null)
+            if (id == null)
             {
                 return NotFound();
             }
@@ -54,7 +55,7 @@ namespace SalesWebMvc.Controllers
             // As this id below is optional (nullable), id.Value must be used instead of just id
             Seller seller = _sellerService.FindById(id.Value);
 
-            if(seller == null)
+            if (seller == null)
             {
                 return NotFound();
             }
@@ -88,6 +89,52 @@ namespace SalesWebMvc.Controllers
             }
 
             return View(seller);
+        }
+
+        // This takes us to the Edit view, so it is HttpGet, which is default
+        public IActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // As this id below is optional (nullable), id.Value must be used instead of just id
+            Seller seller = _sellerService.FindById(id.Value);
+
+            if (seller == null)
+            {
+                return NotFound();
+            }
+
+            List<Department> departments = _departmentService.FindAll();
+            SellerFormViewModel viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
+            return View(viewModel);
+        }
+
+        // This really edits a seller entry in the DB, so it is HttpPost, which must be stated in annotation like below
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Seller seller, int id)
+        {
+            if(id != seller.Id)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                _sellerService.Update(seller);
+                return RedirectToAction(nameof(Index));
+            }
+            catch(NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (DbConcurrencyException)
+            {
+                return BadRequest();
+            }
         }
     }
 }
