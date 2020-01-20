@@ -43,7 +43,7 @@ namespace SalesWebMvc.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // This takes us to the Delete view, so it is HttpGet, which is default 
+        // This takes us to the Delete view, so it is HttpGet, which is default
         public IActionResult Delete(int? id)
         {
             if(id == null)
@@ -62,12 +62,32 @@ namespace SalesWebMvc.Controllers
             return View(seller);
         }
 
+        // This really deletes a seller entry in the DB, so it is HttpPost, which must be stated in annotation like below
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
             _sellerService.Remove(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        // This takes us to the Details view, so it is HttpGet, which is default
+        public IActionResult Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // As this id below is optional (nullable), id.Value must be used instead of just id
+            Seller seller = _sellerService.FindById(id.Value);
+
+            if (seller == null)
+            {
+                return NotFound();
+            }
+
+            return View(seller);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SalesWebMvc.Data;
 using SalesWebMvc.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SalesWebMvc.Services
 {
@@ -29,7 +30,11 @@ namespace SalesWebMvc.Services
 
         public Seller FindById(int id)
         {
-            return _context.Seller.FirstOrDefault(seller => seller.Id == id);
+            // Include(seller => seller.Department) is for joining the Seller entry with his corresponding Department
+            return _context.Seller.Include(seller => seller.Department).FirstOrDefault(seller => seller.Id == id);
+
+            /* This is called eager loading, which is loading objects not only the sought object, but also the objects
+             * associated with it */
         }
 
         public void Remove(int id)
