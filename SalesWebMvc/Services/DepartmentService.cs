@@ -7,24 +7,18 @@ using SalesWebMvc.Models;
 
 namespace SalesWebMvc.Services
 {
-    public class SellerService
+    public class DepartmentService
     {
         private readonly SalesWebMvcContext _context;
 
-        public SellerService(SalesWebMvcContext context)
+        public DepartmentService(SalesWebMvcContext context)
         {
             _context = context;
         }
 
-        public List<Seller> FindAll()
+        public List<Department> FindAll()
         {
-            return _context.Seller.ToList();
-        }
-
-        public void Insert(Seller seller)
-        {
-            _context.Add(seller);
-            _context.SaveChanges();
+            return _context.Department.OrderBy(d => d.Name).ToList();
         }
     }
 }
