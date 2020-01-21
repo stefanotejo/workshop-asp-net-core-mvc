@@ -142,8 +142,15 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
-            _sellerService.Remove(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                _sellerService.Remove(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (IntegrityException e)
+            {
+                return RedirectToAction(nameof(Error), new { message = e.Message });
+            }
         }
         */
 
@@ -152,8 +159,15 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            await _sellerService.RemoveAsync(id); // db access. This is the RemoveAsync I created in SellerService!
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _sellerService.RemoveAsync(id); // db access. This is the RemoveAsync I created in SellerService!
+                return RedirectToAction(nameof(Index));
+            }
+            catch(IntegrityException e)
+            {
+                return RedirectToAction(nameof(Error), new { message = e.Message });
+            }
         }
 
         // This takes us to the Details view, so it is HttpGet, which is default

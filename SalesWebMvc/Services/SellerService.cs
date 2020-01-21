@@ -69,18 +69,32 @@ namespace SalesWebMvc.Services
         // Sync Remove
         public void Remove(int id)
         {
-            Seller seller = _context.Seller.Find(id);
-            _context.Seller.Remove(seller);
-            _context.SaveChanges();
+            try
+            {
+                Seller seller = _context.Seller.Find(id);
+                _context.Seller.Remove(seller);
+                _context.SaveChanges();
+            }
+            catch(DbUpdateException) // DbUpdateException is the exception the Entity Framework throws when a violation of the referential integrity happens
+            {
+                throw new IntegrityException("Seller cannot be deleted because he/she has sales associated to his/her name");
+            }
         }
 
         // Async Remove
         public async Task RemoveAsync(int id)
         {
             // Find and SaveChanges operate on the database. Seller.Remove operates on the heap
-            Seller seller = await _context.Seller.FindAsync(id);
-            _context.Seller.Remove(seller);
-            await _context.SaveChangesAsync();
+            try
+            {
+                Seller seller = await _context.Seller.FindAsync(id);
+                _context.Seller.Remove(seller);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException) // DbUpdateException is the exception the Entity Framework throws when a violation of the referential integrity happens
+            {
+                throw new IntegrityException("Seller cannot be deleted because he/she has sales associated to his/her name");
+            }
         }
 
         // Sync Update
